@@ -4,91 +4,116 @@ import Foundation
 import MetalPerformanceShaders
 
 print("Hello, World!")
+//swiftlint:disable all
 
 enum Config {
     static let winLength = 4
-    static let imageWidth = 7
-    static let imageHeight = 6
-    static let kernelWidth = winLength
-    static let kernelHeight = winLength
+    static let inputImageWidth = 7
+    static let inputImageHeight = 6
+    static let inputImageArea = 42
 
-    static var imageArea: Int { imageWidth * imageHeight }
-    static var kernelArea: Int { kernelWidth * kernelHeight }
+    static let diagonalKernelWidth = 4
+    static let diagonalKernelHeight = 4
+    static let diagonalKernelArea = 16
+
+    static let verticalKernelWidth = 1
+    static let verticalKernelHeight = 4
+    static let verticalKernelArea = 4
+
+    static let horizontalKernelWidth = 4
+    static let horizontalKernelHeight = 1
+    static let horizontalKernelArea = 4
 }
 
 enum World {
     static let device = MTLCopyAllDevices()[0]
 }
 
-let horizontalWeights =
-    UnsafeMutableBufferPointer<FF32>.allocate(capacity: Config.winLength)
+class Main {
+    init() {
+        let horizontalWeights =
+            UnsafeMutableBufferPointer<FF32>.allocate(capacity: Config.horizontalKernelArea)
 
-horizontalWeights.initialize(repeating: 1)
+        horizontalWeights.initialize(repeating: 1)
 
-let verticalWeights =
-    UnsafeMutableBufferPointer<FF32>.allocate(capacity: Config.winLength)
+        let verticalWeights =
+            UnsafeMutableBufferPointer<FF32>.allocate(capacity: Config.verticalKernelArea)
 
-verticalWeights.initialize(repeating: 1)
+        verticalWeights.initialize(repeating: 1)
 
-let negativeSlopeWeights = UnsafeMutableBufferPointer<FF32>.allocate(
-    capacity: Config.kernelArea
-)
+        let negativeSlopeWeights = UnsafeMutableBufferPointer<FF32>.allocate(
+            capacity: Config.diagonalKernelArea
+        )
 
-_ = negativeSlopeWeights.initialize(from: [
-    1, 0, 0, 0,
-    0, 1, 0, 0,
-    0, 0, 1, 0,
-    0, 0, 0, 1
-])
+        _ = negativeSlopeWeights.initialize(from: [
+            1, 0, 0, 0,
+            0, 1, 0, 0,
+            0, 0, 1, 0,
+            0, 0, 0, 1
+        ])
 
-let positiveSlopeWeights = UnsafeMutableBufferPointer<FF32>.allocate(
-    capacity: Config.kernelArea
-)
+        let positiveSlopeWeights = UnsafeMutableBufferPointer<FF32>.allocate(
+            capacity: Config.diagonalKernelArea
+        )
 
-_ = positiveSlopeWeights.initialize(from: [
-    0, 0, 0, 1,
-    0, 0, 1, 0,
-    0, 1, 0, 0,
-    1, 0, 0, 0
-])
+        _ = positiveSlopeWeights.initialize(from: [
+            0, 0, 0, 1,
+            0, 0, 1, 0,
+            0, 1, 0, 0,
+            1, 0, 0, 0
+        ])
 
-//let horizontalKernel = CConvolution(
-//    device: World.device, tier: .top,
-//    imageWidth: Config.imageWidth, imageHeight: Config.imageHeight,
-//    kernelWidth: Config.kernelWidth, kernelHeight: Config.kernelHeight,
-//    kernelWeights: UnsafeBufferPointer(horizontalWeights)
-//)
-//
-//let verticalKernel = CConvolution(
-//    device: World.device, tier: .top,
-//    imageWidth: Config.imageWidth, imageHeight: Config.imageHeight,
-//    kernelWidth: Config.kernelWidth, kernelHeight: Config.kernelHeight,
-//    kernelWeights: UnsafeBufferPointer(verticalWeights)
-//)
-//
-//let negativeSlopeKernel = CConvolution(
-//    device: World.device, tier: .top,
-//    imageWidth: Config.imageWidth, imageHeight: Config.imageHeight,
-//    kernelWidth: Config.kernelWidth, kernelHeight: Config.kernelHeight,
-//    kernelWeights: UnsafeBufferPointer(negativeSlopeWeights)
-//)
+        let horizontalKernel = CConvolution(
+            device: World.device, tier: .top,
+            imageWidth: Config.inputImageWidth, imageHeight: Config.inputImageHeight,
+            kernelWidth: Config.horizontalKernelWidth, kernelHeight: Config.horizontalKernelHeight,
+            kernelWeights: UnsafeBufferPointer(horizontalWeights)
+        )
 
-let positiveSlopeKernel = CConvolution(
-    device: World.device, tier: .top,
-    imageWidth: Config.imageWidth, imageHeight: Config.imageHeight,
-    kernelWidth: Config.kernelWidth, kernelHeight: Config.kernelHeight,
-    kernelWeights: UnsafeBufferPointer(positiveSlopeWeights)
-)
+        let verticalKernel = CConvolution(
+            device: World.device, tier: .top,
+            imageWidth: Config.inputImageWidth, imageHeight: Config.inputImageHeight,
+            kernelWidth: Config.verticalKernelWidth, kernelHeight: Config.verticalKernelHeight,
+            kernelWeights: UnsafeBufferPointer(verticalWeights)
+        )
 
-let netStructure = CNetStructure([
-    /*horizontalKernel, verticalKernel, negativeSlopeKernel, */positiveSlopeKernel
-])
+        let negativeSlopeKernel = CConvolution(
+            device: World.device, tier: .top,
+            imageWidth: Config.inputImageWidth, imageHeight: Config.inputImageHeight,
+            kernelWidth: Config.diagonalKernelWidth, kernelHeight: Config.diagonalKernelHeight,
+            kernelWeights: UnsafeBufferPointer(negativeSlopeWeights)
+        )
 
-let net = CNet(World.device, structure: netStructure)
+        let positiveSlopeKernel = CConvolution(
+            device: World.device, tier: .top,
+            imageWidth: Config.inputImageWidth, imageHeight: Config.inputImageHeight,
+            kernelWidth: Config.diagonalKernelWidth, kernelHeight: Config.diagonalKernelHeight,
+            kernelWeights: UnsafeBufferPointer(positiveSlopeWeights)
+        )
 
-let input: [FF32] = (0..<Config.imageArea).map { _ in FF32(Int.random(in: -1...1)) }
-var output = [FF32](repeating: 42, count: 12)
-net.activate(input: input, result: &output)
+        let negativeSlopeNet = CNet(World.device, structure: CNetStructure([negativeSlopeKernel]))
+        let positiveSlopeNet = CNet(World.device, structure: CNetStructure([positiveSlopeKernel]))
+        let verticalNet = CNet(World.device, structure: CNetStructure([verticalKernel]))
+        let horizontalNet = CNet(World.device, structure: CNetStructure([horizontalKernel]))
 
-print(input)
-print(output)
+        let input: [FF32] = (0..<Config.inputImageArea).map { _ in 1 }//FF32(Int.random(in: -1...1)) }
+
+        var positiveSlopeOutput = [FF32](repeating: 42, count: negativeSlopeNet.destination.imageArea)
+        var negativeSlopeOutput = [FF32](repeating: 42, count: positiveSlopeNet.destination.imageArea)
+        var verticalOutput = [FF32](repeating: 42, count: verticalNet.destination.imageArea)
+        var horizontalOutput = [FF32](repeating: 42, count: horizontalNet.destination.imageArea)
+
+        positiveSlopeNet.activate(input: input, result: &positiveSlopeOutput)
+        negativeSlopeNet.activate(input: input, result: &negativeSlopeOutput)
+        verticalNet.activate(input: input, result: &verticalOutput)
+        horizontalNet.activate(input: input, result: &horizontalOutput)
+
+        print(input)
+        print(positiveSlopeOutput)
+        print(negativeSlopeOutput)
+        print(verticalOutput)
+        print(horizontalOutput)
+    }
+}
+
+_ = Main()

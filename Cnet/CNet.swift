@@ -18,11 +18,11 @@ class CNet {
 
     let destination: CImage
     let source: CImage
-    let structure: CNetStructure
+    let netStructure: CNetStructure
 
     init(_ device: MTLDevice, structure: CNetStructure) {
         self.commandQueue = device.makeCommandQueue()!
-        self.structure = structure
+        self.netStructure = structure
 
         self.source = structure.descriptors.first!.source
         self.destination = structure.descriptors.last!.destination

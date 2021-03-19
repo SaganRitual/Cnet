@@ -60,8 +60,8 @@ class CConvolution: NSObject {
         self.dataSource = d
         self.kernel = c
 
-        c.offset.x = 2
-        c.offset.y = 2
+        c.offset.x = kernelWidth / 2
+        c.offset.y = kernelHeight / 2
 
         super.init()
     }
