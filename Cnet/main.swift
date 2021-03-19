@@ -5,21 +5,12 @@ import MetalPerformanceShaders
 
 print("Hello, World!")
 
-class CNetStructure {
-    let descriptors: [CConvolution]
-    let cKernelWeights: Int
-
-    init(_ descriptors: [CConvolution]) {
-        self.descriptors = descriptors
-        self.cKernelWeights = descriptors.reduce(0) { $0 + $1.cKernelWeights }
-    }
-}
-
 enum Config {
-    static let imageWidth = 4
-    static let imageHeight = 4
-    static let kernelWidth = 3
-    static let kernelHeight = 3
+    static let winLength = 4
+    static let imageWidth = 7
+    static let imageHeight = 6
+    static let kernelWidth = winLength
+    static let kernelHeight = winLength
 
     static var imageArea: Int { imageWidth * imageHeight }
     static var kernelArea: Int { kernelWidth * kernelHeight }
@@ -29,27 +20,75 @@ enum World {
     static let device = MTLCopyAllDevices()[0]
 }
 
-let kernelWeights =
-    UnsafeMutableBufferPointer<FF32>.allocate(capacity: Config.kernelArea)
+let horizontalWeights =
+    UnsafeMutableBufferPointer<FF32>.allocate(capacity: Config.winLength)
 
-kernelWeights.initialize(repeating: 1)
+horizontalWeights.initialize(repeating: 1)
 
-let kernel = CConvolution(
-    device: World.device, kernelWidth: Config.kernelWidth,
-    kernelHeight: Config.kernelHeight,
-    kernelWeights: UnsafeBufferPointer(kernelWeights)
+let verticalWeights =
+    UnsafeMutableBufferPointer<FF32>.allocate(capacity: Config.winLength)
+
+verticalWeights.initialize(repeating: 1)
+
+let negativeSlopeWeights = UnsafeMutableBufferPointer<FF32>.allocate(
+    capacity: Config.kernelArea
 )
 
-let netStructure = CNetStructure([kernel])
+_ = negativeSlopeWeights.initialize(from: [
+    1, 0, 0, 0,
+    0, 1, 0, 0,
+    0, 0, 1, 0,
+    0, 0, 0, 1
+])
 
-let net = CNet(
-    World.device,
+let positiveSlopeWeights = UnsafeMutableBufferPointer<FF32>.allocate(
+    capacity: Config.kernelArea
+)
+
+_ = positiveSlopeWeights.initialize(from: [
+    0, 0, 0, 1,
+    0, 0, 1, 0,
+    0, 1, 0, 0,
+    1, 0, 0, 0
+])
+
+//let horizontalKernel = CConvolution(
+//    device: World.device, tier: .top,
+//    imageWidth: Config.imageWidth, imageHeight: Config.imageHeight,
+//    kernelWidth: Config.kernelWidth, kernelHeight: Config.kernelHeight,
+//    kernelWeights: UnsafeBufferPointer(horizontalWeights)
+//)
+//
+//let verticalKernel = CConvolution(
+//    device: World.device, tier: .top,
+//    imageWidth: Config.imageWidth, imageHeight: Config.imageHeight,
+//    kernelWidth: Config.kernelWidth, kernelHeight: Config.kernelHeight,
+//    kernelWeights: UnsafeBufferPointer(verticalWeights)
+//)
+//
+//let negativeSlopeKernel = CConvolution(
+//    device: World.device, tier: .top,
+//    imageWidth: Config.imageWidth, imageHeight: Config.imageHeight,
+//    kernelWidth: Config.kernelWidth, kernelHeight: Config.kernelHeight,
+//    kernelWeights: UnsafeBufferPointer(negativeSlopeWeights)
+//)
+
+let positiveSlopeKernel = CConvolution(
+    device: World.device, tier: .top,
     imageWidth: Config.imageWidth, imageHeight: Config.imageHeight,
-    kernel: kernel
+    kernelWidth: Config.kernelWidth, kernelHeight: Config.kernelHeight,
+    kernelWeights: UnsafeBufferPointer(positiveSlopeWeights)
 )
 
-let input = [FF32](repeating: 1, count: Config.imageArea)
-var output = [FF32](repeating: 42, count: Config.imageArea)
+let netStructure = CNetStructure([
+    /*horizontalKernel, verticalKernel, negativeSlopeKernel, */positiveSlopeKernel
+])
+
+let net = CNet(World.device, structure: netStructure)
+
+let input: [FF32] = (0..<Config.imageArea).map { _ in FF32(Int.random(in: -1...1)) }
+var output = [FF32](repeating: 42, count: 12)
 net.activate(input: input, result: &output)
 
+print(input)
 print(output)

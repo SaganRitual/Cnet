@@ -3,12 +3,50 @@
 import Foundation
 import MetalPerformanceShaders
 
+//protocol CImageProtocol {
+//    var imageHeight: Int { get }
+//    var imageWidth: Int { get }
+//    var image: MPSImage? { get }
+//    var imageDescriptor: MPSImageDescriptor { get }
+//}
+//
+//class CTempImage: CImageProtocol {
+//    let imageHeight: Int
+//    let imageWidth: Int
+//    var image: MPSImage?
+//
+//    let imageDescriptor: MPSImageDescriptor
+//    let device: MTLDevice
+//    let region: MTLRegion
+//
+//    init(_ device: MTLDevice, _ imageWidth: Int, _ imageHeight: Int) {
+//        self.imageWidth = imageWidth
+//        self.imageHeight = imageHeight
+//
+//        self.device = device
+//
+//        self.imageDescriptor = MPSImageDescriptor(
+//            channelFormat: .float16,
+//            width: imageWidth, height: imageHeight, featureChannels: 1
+//        )
+//
+//        self.region = MTLRegionMake2D(0, 0, imageWidth, imageHeight)
+//    }
+//
+//    func image(_ commandBuffer: MTLCommandBuffer) -> MPSTemporaryImage {
+//        MPSTemporaryImage(
+//            commandBuffer: commandBuffer, imageDescriptor: imageDescriptor
+//        )
+//    }
+//}
+
 class CImage {
     let imageHeight: Int
     let imageWidth: Int
 
     let device: MTLDevice
     let image: MPSImage
+    let imageDescriptor: MPSImageDescriptor
     let region: MTLRegion
 
     var imageArea: Int { imageHeight * imageWidth }
@@ -24,6 +62,7 @@ class CImage {
             width: imageWidth, height: imageHeight, featureChannels: 1
         )
 
+        self.imageDescriptor = d
         self.image = MPSImage(device: device, imageDescriptor: d)
         self.region = MTLRegionMake2D(0, 0, imageWidth, imageHeight)
     }

@@ -3,23 +3,29 @@
 import Foundation
 import MetalPerformanceShaders
 
+class CNetStructure {
+    let descriptors: [CConvolution]
+    let cKernelWeights: Int
+
+    init(_ descriptors: [CConvolution]) {
+        self.descriptors = descriptors
+        self.cKernelWeights = descriptors.reduce(0) { $0 + $1.cKernelWeights }
+    }
+}
+
 class CNet {
     let commandQueue: MTLCommandQueue
 
     let destination: CImage
-    let kernel: CConvolution
     let source: CImage
+    let structure: CNetStructure
 
-    init(
-        _ device: MTLDevice, imageWidth: Int, imageHeight: Int,
-        kernel: CConvolution
-    ) {
+    init(_ device: MTLDevice, structure: CNetStructure) {
         self.commandQueue = device.makeCommandQueue()!
+        self.structure = structure
 
-        self.source = CImage(device, imageWidth, imageHeight)
-        self.destination = CImage(device, imageWidth, imageHeight)
-
-        self.kernel = kernel
+        self.source = structure.descriptors.first!.source
+        self.destination = structure.descriptors.last!.destination
     }
 
     func activate(input: [FF32], result: inout [FF32]) {
@@ -27,8 +33,10 @@ class CNet {
 
         source.inject(data: input)
 
-        kernel.encode(
-            to: commandBuffer, source: source, destination: destination
+        netStructure.descriptors[0].encode(
+            to: commandBuffer,
+            source: source,
+            destination: destination
         )
 
         commandBuffer.commit()

@@ -4,42 +4,69 @@ import Foundation
 import MetalPerformanceShaders
 
 class CConvolution: NSObject {
+    enum Tier { case top, hidden, bottom }
+
     var cKernelWeights: Int { kernelWidth * kernelHeight }
 
     private let kernelHeight: Int
     private let kernelWidth: Int
+    private let imageWidth: Int
+    private let imageHeight: Int
+
+    var outputImageWidth: Int { 1 + imageWidth - kernelWidth }
+    var outputImageHeight: Int { 1 + imageHeight - kernelHeight }
 
     private let kernel: MPSCNNConvolution
     private let dataSource: MPSCNNConvolutionDataSource
 
     let device: MTLDevice
 
+    let destination: CImage
+    let source: CImage
+    let tier: Tier
+
     init(
-        device: MTLDevice,
+        device: MTLDevice, tier: Tier,
+        imageWidth: Int, imageHeight: Int,
         kernelWidth: Int, kernelHeight: Int,
         kernelWeights: UnsafeBufferPointer<FF32>
     ) {
         self.device = device
+        self.tier = tier
+        self.imageWidth = imageWidth
+        self.imageHeight = imageHeight
         self.kernelHeight = kernelHeight
         self.kernelWidth = kernelWidth
+
+        self.source = CImage(device, imageWidth, imageHeight)
+
+        let destinationWidth = 1 + imageWidth - kernelWidth
+        let destinationHeight = 1 + imageHeight - kernelHeight
+        self.destination = CImage(
+            device, destinationWidth, destinationHeight
+        )
 
         let d = CDatasource(kernelWidth, kernelHeight, kernelWeights)
         let c = MPSCNNConvolution(device: device, weights: d)
 
         c.clipRect = .init(
             origin: MTLOrigin(x: 0, y: 0, z: 0),
-            size: MTLSize(width: Config.imageWidth, height: Config.imageHeight, depth: 1)
+
+            size: MTLSize(
+                width: destinationWidth, height: destinationHeight, depth: 1
+            )
         )
 
         self.dataSource = d
         self.kernel = c
 
+        c.offset.x = 2
+        c.offset.y = 2
+
         super.init()
     }
 
-    func encode(
-        to cb: MTLCommandBuffer, source: CImage, destination: CImage
-    ) {
+    func encode(to cb: MTLCommandBuffer, source: CImage, destination: CImage) {
         kernel.encode(
             commandBuffer: cb, sourceImage: source.image,
             destinationImage: destination.image
