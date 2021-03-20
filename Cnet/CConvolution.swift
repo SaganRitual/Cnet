@@ -47,8 +47,8 @@ class CConvolution: NSObject {
         self.dataSource = d
         self.kernel = c
 
-        c.offset.x = -destinationIoSpec.width / 2
-        c.offset.y = -destinationIoSpec.height / 2
+        c.offset.x = -(destinationIoSpec.width - 1) / 2
+        c.offset.y = -(destinationIoSpec.height - 1) / 2
 
         super.init()
     }
