@@ -6,7 +6,7 @@ import MetalPerformanceShaders
 print("Hello, World!")
 //swiftlint:disable all
 
-struct CNetIO {
+struct CNetIOSpec {
     var area: Int { width * height }
     var volume: Int { area * channels }
 
@@ -18,16 +18,16 @@ struct CNetIO {
 enum Config {
     static let winLength = 4
 
-    static let inputSpec =  CNetIO(channels: 1, height: 6, width: 7)
-    static let kernelSpec = CNetIO(channels: 4, height: 6, width: 7)
-    static let outputSpec = CNetIO(channels: 4, height: 6, width: 7)
+    static let inputSpec =  CNetIOSpec(channels: 1, height: 6, width: 7)
+    static let kernelSpec = CNetIOSpec(channels: 4, height: 6, width: 7)
+    static let outputSpec = CNetIOSpec(channels: 4, height: 6, width: 7)
 }
 
 enum World {
     static let device = MTLCopyAllDevices()[0]
 }
 
-class Main {
+class Convolver {
     init() {
         let kernelWeights: [FF32] = [
             0, 0, 0, 0, 0, 0, 0,
@@ -75,7 +75,7 @@ class Main {
             )
         }
 
-        let convolveNet = CNet(World.device, structure: CNetStructure([kernel]))
+        let convolveNet = CNet(World.device, structure: [kernel])
 
         let input: [FF32] = (0..<Config.inputSpec.volume).map
             { _ in 1 } //FF32(Int.random(in: -1...1)) }
@@ -89,4 +89,26 @@ class Main {
     }
 }
 
-_ = Main()
+class Matrixer {
+    init() {
+        let ss = CNetIOSpec(channels: 1, height: 1, width: 42)
+        let dd = CNetIOSpec(channels: 1, height: 1, width: 42)
+
+        let inputs: [FF32] = .init(repeating: 1, count: ss.width)
+        var outputs: [FF32] = .init(repeating: 24, count: dd.width)
+        let weights: [FF32] = .init(repeating: 1, count: ss.width * dd.width)
+
+        let fc = CFullyConnected(
+            World.device, source: ss, destination: dd, weightsArray: weights
+        )
+
+        let net = CNet(World.device, structure: [fc])
+
+        net.activate(input: inputs, result: &outputs)
+
+        print(inputs)
+        print(outputs)
+    }
+}
+
+_ = Matrixer()

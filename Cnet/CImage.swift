@@ -40,15 +40,20 @@ import MetalPerformanceShaders
 //    }
 //}
 
-class CImage {
-    let ioSpec: CNetIO
+protocol CNetIO {
+    func extractData(to outputBuffer: UnsafeMutableBufferPointer<FF32>)
+    func inject(data: [FF32])
+}
+
+class CImage: CNetIO {
+    let ioSpec: CNetIOSpec
 
     let device: MTLDevice
     let image: MPSImage
     let imageDescriptor: MPSImageDescriptor
     let region: MTLRegion
 
-    init(_ device: MTLDevice, ioSpec: CNetIO) {
+    init(_ device: MTLDevice, ioSpec: CNetIOSpec) {
         self.ioSpec = ioSpec
         self.device = device
 

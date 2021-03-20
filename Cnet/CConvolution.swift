@@ -3,7 +3,13 @@
 import Foundation
 import MetalPerformanceShaders
 
-class CConvolution: NSObject {
+protocol CNetLayer {
+    func encode(to commandBuffer: MTLCommandBuffer)
+    func getDestination() -> CNetIO
+    func getSource() -> CNetIO
+}
+
+class CConvolution: NSObject, CNetLayer {
     enum Tier { case top, hidden, bottom }
 
     private let kernel: MPSCNNConvolution
@@ -17,9 +23,12 @@ class CConvolution: NSObject {
     let source: CImage
     let tier: Tier
 
+    func getDestination() -> CNetIO { destination }
+    func getSource() -> CNetIO { source }
+
     init(
         device: MTLDevice, tier: Tier,
-        destinationIoSpec: CNetIO, kernelIoSpec: CNetIO, sourceIoSpec: CNetIO,
+        destinationIoSpec: CNetIOSpec, kernelIoSpec: CNetIOSpec, sourceIoSpec: CNetIOSpec,
         kernelWeights: UnsafeBufferPointer<FF32>
     ) {
         self.device = device
@@ -53,7 +62,7 @@ class CConvolution: NSObject {
         super.init()
     }
 
-    func encode(to cb: MTLCommandBuffer, source: CImage, destination: CImage) {
+    func encode(to cb: MTLCommandBuffer) {
         kernel.encode(
             commandBuffer: cb, sourceImage: source.image,
             destinationImage: destination.image
@@ -65,7 +74,7 @@ class CDatasource: NSObject, MPSCNNConvolutionDataSource {
     private let convolutionDescriptor: MPSCNNConvolutionDescriptor!
     private let kernelWeights: UnsafeBufferPointer<FF32>
 
-    init(source: CNetIO, kernel: CNetIO, weights: UnsafeBufferPointer<FF32>) {
+    init(source: CNetIOSpec, kernel: CNetIOSpec, weights: UnsafeBufferPointer<FF32>) {
         self.kernelWeights = weights
 
         let d = MPSCNNConvolutionDescriptor(
