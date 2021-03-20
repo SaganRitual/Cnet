@@ -94,12 +94,14 @@ class Matrixer {
         let ss = CNetIOSpec(channels: 1, height: 1, width: 42)
         let dd = CNetIOSpec(channels: 1, height: 1, width: 42)
 
+        let biases: [FF32] = .init(repeating: 2, count: dd.width)
         let inputs: [FF32] = .init(repeating: 1, count: ss.width)
-        var outputs: [FF32] = .init(repeating: 24, count: dd.width)
+        var outputs: [FF32] = .init(repeating: 42.42, count: dd.width)
         let weights: [FF32] = .init(repeating: 1, count: ss.width * dd.width)
 
         let fc = CFullyConnected(
-            World.device, source: ss, destination: dd, weightsArray: weights
+            World.device, source: ss, destination: dd,
+            weightsArray: weights, biasesArray: biases
         )
 
         let net = CNet(World.device, structure: [fc])

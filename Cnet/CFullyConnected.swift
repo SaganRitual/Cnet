@@ -9,13 +9,14 @@ class CFullyConnected: NSObject, CNetLayer {
 
     let kernel: MPSMatrixMultiplication
     let weights: CMatrix
+    let biases: [FF32]
 
     func getDestination() -> CNetIO { destination }
     func getSource() -> CNetIO { source }
 
     init(
         _ device: MTLDevice, source: CNetIOSpec, destination: CNetIOSpec,
-        weightsArray: [FF32]
+        weightsArray: [FF32], biasesArray: [FF32]? = nil
     ) {
         self.destination = CMatrix(device, ioSpec: destination)
         self.source = CMatrix(device, ioSpec: source)
@@ -31,9 +32,12 @@ class CFullyConnected: NSObject, CNetLayer {
         )
 
         self.weights = CMatrix(device, ioSpec: weightsSpec, data: weightsArray)
+        self.biases = biasesArray ?? .init(repeating: 0, count: destination.width)
     }
 
     func encode(to cb: MTLCommandBuffer) {
+        destination.inject(data: biases)
+
         kernel.encode(
             commandBuffer: cb,
             leftMatrix: source.matrix, rightMatrix: weights.matrix,
