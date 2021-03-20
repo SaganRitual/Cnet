@@ -41,38 +41,35 @@ import MetalPerformanceShaders
 //}
 
 class CImage {
-    let imageHeight: Int
-    let imageWidth: Int
+    let ioSpec: CNetIO
 
     let device: MTLDevice
     let image: MPSImage
     let imageDescriptor: MPSImageDescriptor
     let region: MTLRegion
 
-    var imageArea: Int { imageHeight * imageWidth }
-
-    init(_ device: MTLDevice, _ imageWidth: Int, _ imageHeight: Int) {
-        self.imageWidth = imageWidth
-        self.imageHeight = imageHeight
-
+    init(_ device: MTLDevice, ioSpec: CNetIO) {
+        self.ioSpec = ioSpec
         self.device = device
 
         let d = MPSImageDescriptor(
             channelFormat: .float16,
-            width: imageWidth, height: imageHeight, featureChannels: 1
+            width: ioSpec.width, height: ioSpec.height,
+            featureChannels: ioSpec.channels
         )
 
         self.imageDescriptor = d
         self.image = MPSImage(device: device, imageDescriptor: d)
-        self.region = MTLRegionMake2D(0, 0, imageWidth, imageHeight)
+        self.region = MTLRegionMake2D(0, 0, ioSpec.width, ioSpec.height)
     }
 
     func extractData(to outputBuffer: UnsafeMutableBufferPointer<FF32>) {
-        assert(outputBuffer.count == imageArea)
+        assert(outputBuffer.count == ioSpec.volume)
 
-        let bytesPerRow: Int = F16.bytesFF16(imageWidth)
+        let bytesPerRow: Int = F16.bytesFF16(ioSpec.width * ioSpec.channels)
 
-        let ff16 = UnsafeMutableBufferPointer<FF16>.allocate(capacity: imageArea)
+        let ff16 =
+            UnsafeMutableBufferPointer<FF16>.allocate(capacity: ioSpec.volume)
 
         image.texture.getBytes(
             UnsafeMutableRawPointer(ff16.baseAddress!),
@@ -86,10 +83,10 @@ class CImage {
 
     func inject(data: [FF32]) {
         data.withUnsafeBufferPointer { input32 in
-            let bytesPerRow: Int = F16.bytesFF16(imageWidth)
+            let bytesPerRow: Int = F16.bytesFF16(ioSpec.width * ioSpec.channels)
 
             let ff16 =
-                UnsafeMutableBufferPointer<FF16>.allocate(capacity: imageArea)
+                UnsafeMutableBufferPointer<FF16>.allocate(capacity: ioSpec.volume)
 
             ff16.initialize(repeating: 0)
 

@@ -6,18 +6,10 @@ import MetalPerformanceShaders
 class CConvolution: NSObject {
     enum Tier { case top, hidden, bottom }
 
-    var cKernelWeights: Int { kernelWidth * kernelHeight }
-
-    private let kernelHeight: Int
-    private let kernelWidth: Int
-    private let imageWidth: Int
-    private let imageHeight: Int
-
-    var outputImageWidth: Int { 1 + imageWidth - kernelWidth }
-    var outputImageHeight: Int { 1 + imageHeight - kernelHeight }
-
     private let kernel: MPSCNNConvolution
     private let dataSource: MPSCNNConvolutionDataSource
+
+    let cKernelWeights: Int
 
     let device: MTLDevice
 
@@ -27,41 +19,36 @@ class CConvolution: NSObject {
 
     init(
         device: MTLDevice, tier: Tier,
-        imageWidth: Int, imageHeight: Int,
-        kernelWidth: Int, kernelHeight: Int,
+        destinationIoSpec: CNetIO, kernelIoSpec: CNetIO, sourceIoSpec: CNetIO,
         kernelWeights: UnsafeBufferPointer<FF32>
     ) {
         self.device = device
         self.tier = tier
-        self.imageWidth = imageWidth
-        self.imageHeight = imageHeight
-        self.kernelHeight = kernelHeight
-        self.kernelWidth = kernelWidth
+        self.cKernelWeights = kernelIoSpec.volume
 
-        self.source = CImage(device, imageWidth, imageHeight)
+        self.source = CImage(device, ioSpec: sourceIoSpec)
+        self.destination = CImage(device, ioSpec: destinationIoSpec)
 
-        let destinationWidth = 1 + imageWidth - kernelWidth
-        let destinationHeight = 1 + imageHeight - kernelHeight
-        self.destination = CImage(
-            device, destinationWidth, destinationHeight
+        let d = CDatasource(
+            source: sourceIoSpec, kernel: kernelIoSpec, weights: kernelWeights
         )
 
-        let d = CDatasource(kernelWidth, kernelHeight, kernelWeights)
         let c = MPSCNNConvolution(device: device, weights: d)
 
         c.clipRect = .init(
             origin: MTLOrigin(x: 0, y: 0, z: 0),
 
             size: MTLSize(
-                width: destinationWidth, height: destinationHeight, depth: 1
+                width: destinationIoSpec.width,
+                height: destinationIoSpec.height, depth: 1
             )
         )
 
         self.dataSource = d
         self.kernel = c
 
-        c.offset.x = kernelWidth / 2
-        c.offset.y = kernelHeight / 2
+        c.offset.x = -destinationIoSpec.width / 2
+        c.offset.y = -destinationIoSpec.height / 2
 
         super.init()
     }
@@ -78,15 +65,14 @@ class CDatasource: NSObject, MPSCNNConvolutionDataSource {
     private let convolutionDescriptor: MPSCNNConvolutionDescriptor!
     private let kernelWeights: UnsafeBufferPointer<FF32>
 
-    init(
-        _ kernelWidth: Int, _ kernelHeight: Int,
-        _ kernelWeights: UnsafeBufferPointer<FF32>
-    ) {
-        self.kernelWeights = kernelWeights
+    init(source: CNetIO, kernel: CNetIO, weights: UnsafeBufferPointer<FF32>) {
+        self.kernelWeights = weights
 
         let d = MPSCNNConvolutionDescriptor(
-            kernelWidth: kernelWidth, kernelHeight: kernelHeight,
-            inputFeatureChannels: 1, outputFeatureChannels: 1, neuronFilter: nil
+            kernelWidth: kernel.width, kernelHeight: kernel.height,
+            inputFeatureChannels: source.channels,
+            outputFeatureChannels: kernel.channels,
+            neuronFilter: nil
         )
 
         d.strideInPixelsX = 1
