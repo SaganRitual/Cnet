@@ -3,39 +3,36 @@
 import Foundation
 import MetalPerformanceShaders
 
-struct CNetIOSpec {
-    var area: Int { width * height }
-    var volume: Int { area * channels }
-
-    let channels: Int
-    let height: Int
-    let width: Int
-}
-
 class CNet {
     let commandQueue: MTLCommandQueue
 
-    let destination: CNetIO
-    let source: CNetIO
+    var input: UnsafeMutableBufferPointer<FF32>
+    var output: UnsafeMutableBufferPointer<FF32>
+
     let netStructure: [CNetLayer]
 
-    init(_ device: MTLDevice, structure: [CNetLayer]) {
+    init(
+        _ device: MTLDevice, structure: [CNetLayer],
+        input: UnsafeMutableBufferPointer<FF32>,
+        output: UnsafeMutableBufferPointer<FF32>
+    ) {
         self.commandQueue = device.makeCommandQueue()!
+        self.input = input
         self.netStructure = structure
-
-        self.source = structure.first!.getSource()
-        self.destination = structure.last!.getDestination()
+        self.output = output
     }
 
-    func activate(input: [FF32], result: inout [FF32]) {
+    func activate() {
         let commandBuffer = commandQueue.makeCommandBuffer()!
+        let inputLayer = netStructure.first!
+        let outputLayer = netStructure.last!
 
-        source.inject(data: input)
-        netStructure[0].encode(to: commandBuffer)
+        inputLayer.inject(data: UnsafeBufferPointer(input))
+        inputLayer.encode(to: commandBuffer)
 
         commandBuffer.commit()
         commandBuffer.waitUntilCompleted()
 
-        result.withUnsafeMutableBufferPointer { destination.extractData(to: $0) }
+        outputLayer.extractData(to: output)
     }
 }

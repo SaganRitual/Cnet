@@ -7,13 +7,14 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		D472A15A2607E9620068873F /* CWConvolution.swift in Sources */ = {isa = PBXBuildFile; fileRef = D472A1592607E9620068873F /* CWConvolution.swift */; };
+		D472A15D2607E99F0068873F /* CDatasource.swift in Sources */ = {isa = PBXBuildFile; fileRef = D472A15C2607E99F0068873F /* CDatasource.swift */; };
+		D472A1602607EC710068873F /* CImage.swift in Sources */ = {isa = PBXBuildFile; fileRef = D472A15F2607EC710068873F /* CImage.swift */; };
+		D472A1632607ECE40068873F /* CNetProtocols.swift in Sources */ = {isa = PBXBuildFile; fileRef = D472A1622607ECE40068873F /* CNetProtocols.swift */; };
+		D472A1662607F6A20068873F /* KernelWeights.swift in Sources */ = {isa = PBXBuildFile; fileRef = D472A1652607F6A20068873F /* KernelWeights.swift */; };
+		D472A169260803C40068873F /* CNet.swift in Sources */ = {isa = PBXBuildFile; fileRef = D472A168260803C40068873F /* CNet.swift */; };
 		D4A7108526042DC40063B4A4 /* main.swift in Sources */ = {isa = PBXBuildFile; fileRef = D4A7108426042DC40063B4A4 /* main.swift */; };
 		D4A7109426042E320063B4A4 /* Float16.swift in Sources */ = {isa = PBXBuildFile; fileRef = D4A7109026042E320063B4A4 /* Float16.swift */; };
-		D4A7109526042E320063B4A4 /* CImage.swift in Sources */ = {isa = PBXBuildFile; fileRef = D4A7109126042E320063B4A4 /* CImage.swift */; };
-		D4A7109626042E320063B4A4 /* CNet.swift in Sources */ = {isa = PBXBuildFile; fileRef = D4A7109226042E320063B4A4 /* CNet.swift */; };
-		D4A7109726042E320063B4A4 /* CConvolution.swift in Sources */ = {isa = PBXBuildFile; fileRef = D4A7109326042E320063B4A4 /* CConvolution.swift */; };
-		D4A710DA2605BC920063B4A4 /* CFullyConnected.swift in Sources */ = {isa = PBXBuildFile; fileRef = D4A710D92605BC920063B4A4 /* CFullyConnected.swift */; };
-		D4A710DD2605C5BC0063B4A4 /* CMatrix.swift in Sources */ = {isa = PBXBuildFile; fileRef = D4A710DC2605C5BC0063B4A4 /* CMatrix.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXCopyFilesBuildPhase section */
@@ -29,17 +30,18 @@
 /* End PBXCopyFilesBuildPhase section */
 
 /* Begin PBXFileReference section */
+		D472A1592607E9620068873F /* CWConvolution.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CWConvolution.swift; sourceTree = "<group>"; };
+		D472A15C2607E99F0068873F /* CDatasource.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CDatasource.swift; sourceTree = "<group>"; };
+		D472A15F2607EC710068873F /* CImage.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CImage.swift; sourceTree = "<group>"; };
+		D472A1622607ECE40068873F /* CNetProtocols.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CNetProtocols.swift; sourceTree = "<group>"; };
+		D472A1652607F6A20068873F /* KernelWeights.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = KernelWeights.swift; sourceTree = "<group>"; };
+		D472A168260803C40068873F /* CNet.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CNet.swift; sourceTree = "<group>"; };
 		D4A7108126042DC40063B4A4 /* Cnet */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = Cnet; sourceTree = BUILT_PRODUCTS_DIR; };
 		D4A7108426042DC40063B4A4 /* main.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = main.swift; sourceTree = "<group>"; };
 		D4A7108C26042DE20063B4A4 /* .swiftlint.yml */ = {isa = PBXFileReference; lastKnownFileType = text.yaml; path = .swiftlint.yml; sourceTree = "<group>"; };
 		D4A7108D26042DE20063B4A4 /* swiftlint.sh */ = {isa = PBXFileReference; lastKnownFileType = text.script.sh; path = swiftlint.sh; sourceTree = "<group>"; };
 		D4A7108E26042DE20063B4A4 /* .overcommit.yml */ = {isa = PBXFileReference; lastKnownFileType = text.yaml; path = .overcommit.yml; sourceTree = "<group>"; };
 		D4A7109026042E320063B4A4 /* Float16.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Float16.swift; sourceTree = "<group>"; };
-		D4A7109126042E320063B4A4 /* CImage.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = CImage.swift; sourceTree = "<group>"; };
-		D4A7109226042E320063B4A4 /* CNet.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = CNet.swift; sourceTree = "<group>"; };
-		D4A7109326042E320063B4A4 /* CConvolution.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = CConvolution.swift; sourceTree = "<group>"; };
-		D4A710D92605BC920063B4A4 /* CFullyConnected.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CFullyConnected.swift; sourceTree = "<group>"; };
-		D4A710DC2605C5BC0063B4A4 /* CMatrix.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CMatrix.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -75,13 +77,14 @@
 		D4A7108326042DC40063B4A4 /* Cnet */ = {
 			isa = PBXGroup;
 			children = (
-				D4A7109326042E320063B4A4 /* CConvolution.swift */,
-				D4A710D92605BC920063B4A4 /* CFullyConnected.swift */,
-				D4A7109126042E320063B4A4 /* CImage.swift */,
-				D4A710DC2605C5BC0063B4A4 /* CMatrix.swift */,
-				D4A7109226042E320063B4A4 /* CNet.swift */,
 				D4A7109026042E320063B4A4 /* Float16.swift */,
 				D4A7108426042DC40063B4A4 /* main.swift */,
+				D472A15C2607E99F0068873F /* CDatasource.swift */,
+				D472A15F2607EC710068873F /* CImage.swift */,
+				D472A168260803C40068873F /* CNet.swift */,
+				D472A1622607ECE40068873F /* CNetProtocols.swift */,
+				D472A1592607E9620068873F /* CWConvolution.swift */,
+				D472A1652607F6A20068873F /* KernelWeights.swift */,
 			);
 			path = Cnet;
 			sourceTree = "<group>";
@@ -155,7 +158,7 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
-			shellScript = "# Type a script or drag a script file from your workspace to insert its path.\n/Users/rob/Projects/Cnet/swiftlint.sh\n";
+			shellScript = "# Type a script or drag a script file from your workspace to insert its path.\n/Users/rob/Projects/Library/NewCnet/swiftlint.sh\n";
 		};
 /* End PBXShellScriptBuildPhase section */
 
@@ -164,13 +167,14 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				D4A710DD2605C5BC0063B4A4 /* CMatrix.swift in Sources */,
+				D472A1602607EC710068873F /* CImage.swift in Sources */,
 				D4A7108526042DC40063B4A4 /* main.swift in Sources */,
 				D4A7109426042E320063B4A4 /* Float16.swift in Sources */,
-				D4A7109526042E320063B4A4 /* CImage.swift in Sources */,
-				D4A7109626042E320063B4A4 /* CNet.swift in Sources */,
-				D4A710DA2605BC920063B4A4 /* CFullyConnected.swift in Sources */,
-				D4A7109726042E320063B4A4 /* CConvolution.swift in Sources */,
+				D472A1662607F6A20068873F /* KernelWeights.swift in Sources */,
+				D472A1632607ECE40068873F /* CNetProtocols.swift in Sources */,
+				D472A15D2607E99F0068873F /* CDatasource.swift in Sources */,
+				D472A15A2607E9620068873F /* CWConvolution.swift in Sources */,
+				D472A169260803C40068873F /* CNet.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
