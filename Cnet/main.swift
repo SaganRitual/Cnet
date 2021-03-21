@@ -6,15 +6,6 @@ import MetalPerformanceShaders
 print("Hello, World!")
 //swiftlint:disable all
 
-struct CNetIOSpec {
-    var area: Int { width * height }
-    var volume: Int { area * channels }
-
-    let channels: Int
-    let height: Int
-    let width: Int
-}
-
 enum Config {
     static let winLength = 4
 

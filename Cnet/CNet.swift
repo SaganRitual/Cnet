@@ -3,6 +3,15 @@
 import Foundation
 import MetalPerformanceShaders
 
+struct CNetIOSpec {
+    var area: Int { width * height }
+    var volume: Int { area * channels }
+
+    let channels: Int
+    let height: Int
+    let width: Int
+}
+
 class CNet {
     let commandQueue: MTLCommandQueue
 

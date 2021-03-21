@@ -17,7 +17,7 @@ class CConvolution: NSObject, CNetLayer {
 
     let cKernelWeights: Int
 
-    let device: MTLDevice
+    weak var device: MTLDevice!
 
     let destination: CImage
     let source: CImage

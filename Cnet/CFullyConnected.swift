@@ -9,7 +9,10 @@ class CFullyConnected: NSObject, CNetLayer {
 
     let kernel: MPSMatrixMultiplication
     let weights: CMatrix
-    let biases: [FF32]
+    var biases: [FF32]
+
+    var cBiases: Int { destination.ioSpec.width }
+    var cWeights: Int { source.ioSpec.area * destination.ioSpec.width }
 
     func getDestination() -> CNetIO { destination }
     func getSource() -> CNetIO { source }
@@ -43,5 +46,18 @@ class CFullyConnected: NSObject, CNetLayer {
             leftMatrix: source.matrix, rightMatrix: weights.matrix,
             resultMatrix: destination.matrix
         )
+    }
+
+    func setBiases(_ biases: UnsafeMutableBufferPointer<FF32>) {
+        _ = self.biases.withUnsafeMutableBufferPointer {
+            $0.initialize(from: biases)
+        }
+    }
+
+    func setWeights(_ weights: UnsafeMutableBufferPointer<FF32>) {
+        self.weights.matrix.data
+            .contents()
+            .assumingMemoryBound(to: FF32.self)
+            .assign(from: UnsafePointer(weights.baseAddress!), count: weights.count)
     }
 }
