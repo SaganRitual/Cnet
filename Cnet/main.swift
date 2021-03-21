@@ -16,10 +16,18 @@ enum World {
     static let device = MTLCopyAllDevices()[0]
 }
 
-let gridInputs = UnsafeMutableBufferPointer<FF32>.allocate(capacity: Config.inputSpec.volume)
-let gridOutputs = UnsafeMutableBufferPointer<FF32>.allocate(capacity: Config.outputSpec.volume)
+let gridInputs = UnsafeMutableBufferPointer<FF32>.allocate(capacity: 2 * Config.inputSpec.volume)
+let convolutionOutputs = UnsafeMutableBufferPointer<FF32>.allocate(capacity: 2 * Config.outputSpec.volume)
 
-let layer = World.kernelWeights.withUnsafeBufferPointer {
+let player0 = World.kernelWeights.withUnsafeBufferPointer {
+    CWConvolution(
+        device: World.device, tier: .top, destinationIOSize: Config.outputSpec,
+        kernelIOSize: Config.kernelSpec, sourceIOSize: Config.inputSpec,
+        kernelWeights: $0
+    )
+}
+
+let player1 = World.kernelWeights.withUnsafeBufferPointer {
     CWConvolution(
         device: World.device, tier: .top, destinationIOSize: Config.outputSpec,
         kernelIOSize: Config.kernelSpec, sourceIOSize: Config.inputSpec,
@@ -28,12 +36,19 @@ let layer = World.kernelWeights.withUnsafeBufferPointer {
 }
 
 let net = CNet(
-    World.device, structure: [layer], input: gridInputs, output: gridOutputs
+    World.device,
+    convolution0: player0, convolution1: player1,
+    input: gridInputs, output: convolutionOutputs
 )
 
+//for ix in stride(from: 0, to: Config.inputSpec.volume, by: 2) {
+//    gridInputs[ix + 0] = 1
+//    gridInputs[ix + 1] = 0
+//}
+
 gridInputs.initialize(repeating: 1)
-gridOutputs.initialize(repeating: 42.42)
+convolutionOutputs.initialize(repeating: 42.42)
 
 net.activate()
 
-print(gridOutputs.map { $0 })
+print(convolutionOutputs.map { $0 })

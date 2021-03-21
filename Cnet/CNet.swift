@@ -9,30 +9,35 @@ class CNet {
     var input: UnsafeMutableBufferPointer<FF32>
     var output: UnsafeMutableBufferPointer<FF32>
 
-    let netStructure: [CNetLayer]
+    let convolution0: CWConvolution
+    let convolution1: CWConvolution
 
     init(
-        _ device: MTLDevice, structure: [CNetLayer],
+        _ device: MTLDevice,
+        convolution0: CWConvolution, convolution1: CWConvolution,
         input: UnsafeMutableBufferPointer<FF32>,
         output: UnsafeMutableBufferPointer<FF32>
     ) {
         self.commandQueue = device.makeCommandQueue()!
         self.input = input
-        self.netStructure = structure
         self.output = output
+        self.convolution0 = convolution0
+        self.convolution1 = convolution1
     }
 
     func activate() {
         let commandBuffer = commandQueue.makeCommandBuffer()!
-        let inputLayer = netStructure.first!
-        let outputLayer = netStructure.last!
 
-        inputLayer.inject(data: UnsafeBufferPointer(input))
-        inputLayer.encode(to: commandBuffer)
+        convolution0.inject(data: UnsafeBufferPointer(rebasing: input[..<(input.count / 2)]))
+        convolution1.inject(data: UnsafeBufferPointer(rebasing: input[(input.count / 2)...]))
+
+        convolution0.encode(to: commandBuffer)
+        convolution1.encode(to: commandBuffer)
 
         commandBuffer.commit()
         commandBuffer.waitUntilCompleted()
 
-        outputLayer.extractData(to: output)
+        convolution0.extractData(to: UnsafeMutableBufferPointer(rebasing: output[..<(output.count / 2)]))
+        convolution1.extractData(to: UnsafeMutableBufferPointer(rebasing: output[(output.count / 2)...]))
     }
 }
