@@ -13,6 +13,8 @@
 		D472A1632607ECE40068873F /* CNetProtocols.swift in Sources */ = {isa = PBXBuildFile; fileRef = D472A1622607ECE40068873F /* CNetProtocols.swift */; };
 		D472A1662607F6A20068873F /* KernelWeights.swift in Sources */ = {isa = PBXBuildFile; fileRef = D472A1652607F6A20068873F /* KernelWeights.swift */; };
 		D472A169260803C40068873F /* CNet.swift in Sources */ = {isa = PBXBuildFile; fileRef = D472A168260803C40068873F /* CNet.swift */; };
+		D472A16E260814690068873F /* CMatrix.swift in Sources */ = {isa = PBXBuildFile; fileRef = D472A16D260814690068873F /* CMatrix.swift */; };
+		D472A171260815900068873F /* CFullyConnected.swift in Sources */ = {isa = PBXBuildFile; fileRef = D472A170260815900068873F /* CFullyConnected.swift */; };
 		D4A7108526042DC40063B4A4 /* main.swift in Sources */ = {isa = PBXBuildFile; fileRef = D4A7108426042DC40063B4A4 /* main.swift */; };
 		D4A7109426042E320063B4A4 /* Float16.swift in Sources */ = {isa = PBXBuildFile; fileRef = D4A7109026042E320063B4A4 /* Float16.swift */; };
 /* End PBXBuildFile section */
@@ -36,6 +38,8 @@
 		D472A1622607ECE40068873F /* CNetProtocols.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CNetProtocols.swift; sourceTree = "<group>"; };
 		D472A1652607F6A20068873F /* KernelWeights.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = KernelWeights.swift; sourceTree = "<group>"; };
 		D472A168260803C40068873F /* CNet.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CNet.swift; sourceTree = "<group>"; };
+		D472A16D260814690068873F /* CMatrix.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CMatrix.swift; sourceTree = "<group>"; };
+		D472A170260815900068873F /* CFullyConnected.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CFullyConnected.swift; sourceTree = "<group>"; };
 		D4A7108126042DC40063B4A4 /* Cnet */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = Cnet; sourceTree = BUILT_PRODUCTS_DIR; };
 		D4A7108426042DC40063B4A4 /* main.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = main.swift; sourceTree = "<group>"; };
 		D4A7108C26042DE20063B4A4 /* .swiftlint.yml */ = {isa = PBXFileReference; lastKnownFileType = text.yaml; path = .swiftlint.yml; sourceTree = "<group>"; };
@@ -80,7 +84,9 @@
 				D4A7109026042E320063B4A4 /* Float16.swift */,
 				D4A7108426042DC40063B4A4 /* main.swift */,
 				D472A15C2607E99F0068873F /* CDatasource.swift */,
+				D472A170260815900068873F /* CFullyConnected.swift */,
 				D472A15F2607EC710068873F /* CImage.swift */,
+				D472A16D260814690068873F /* CMatrix.swift */,
 				D472A168260803C40068873F /* CNet.swift */,
 				D472A1622607ECE40068873F /* CNetProtocols.swift */,
 				D472A1592607E9620068873F /* CWConvolution.swift */,
@@ -169,7 +175,9 @@
 			files = (
 				D472A1602607EC710068873F /* CImage.swift in Sources */,
 				D4A7108526042DC40063B4A4 /* main.swift in Sources */,
+				D472A171260815900068873F /* CFullyConnected.swift in Sources */,
 				D4A7109426042E320063B4A4 /* Float16.swift in Sources */,
+				D472A16E260814690068873F /* CMatrix.swift in Sources */,
 				D472A1662607F6A20068873F /* KernelWeights.swift in Sources */,
 				D472A1632607ECE40068873F /* CNetProtocols.swift in Sources */,
 				D472A15D2607E99F0068873F /* CDatasource.swift in Sources */,

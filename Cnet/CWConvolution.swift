@@ -13,18 +13,16 @@ class CWConvolution: NSObject, CNetLayer {
 
     let destination: CImage
     let source: CImage
-    let tier: Tier
 
     func getDestination() -> CNetIO { destination }
     func getSource() -> CNetIO { source }
 
     init(
-        device: MTLDevice, tier: Tier,
+        _ device: MTLDevice,
         destinationIOSize: CNetIOSize, kernelIOSize: CNetIOSize, sourceIOSize: CNetIOSize,
         kernelWeights: UnsafeBufferPointer<FF32>
     ) {
         self.device = device
-        self.tier = tier
 
         self.source = CImage(device, ioSize: sourceIOSize)
         self.destination = CImage(device, ioSize: destinationIOSize)
